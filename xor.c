@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-void xorEncryptDecrypt(char *data, const char *key) {
+void xorEncryptDecrypt(char* data, const char* key) {
     int keyLen = strlen(key);
     for (int i = 0; data[i] != '\0'; ++i) {
         data[i] ^= key[i % keyLen];
@@ -28,7 +29,7 @@ int main() {
         printf("Enter the key: ");
         scanf("%s", key);
 
-        FILE *file = fopen(filename, "wb");
+        FILE* file = fopen(filename, "wb");
         if (file == NULL) {
             printf("Error opening file for writing.\n");
             return 1;
@@ -37,7 +38,8 @@ int main() {
         xorEncryptDecrypt(plaintext, key);
         fwrite(plaintext, sizeof(char), strlen(plaintext), file);
         fclose(file);
-    } else if (choice == 'd') {
+    }
+    else if (choice == 'd') {
         char filename[50];
         char key[20];
 
@@ -47,7 +49,7 @@ int main() {
         printf("Enter the key: ");
         scanf("%s", key);
 
-        FILE *file = fopen(filename, "rb");
+        FILE* file = fopen(filename, "rb");
         if (file == NULL) {
             printf("Error opening file for reading.\n");
             return 1;
@@ -57,7 +59,7 @@ int main() {
         long fileSize = ftell(file);
         fseek(file, 0, SEEK_SET);
 
-        char *encryptedData = malloc(fileSize + 1);
+        char* encryptedData = malloc(fileSize + 1);
         if (encryptedData == NULL) {
             printf("Memory allocation failed.\n");
             fclose(file);
@@ -72,7 +74,8 @@ int main() {
         printf("Decrypted data: %s\n", encryptedData);
 
         free(encryptedData);
-    } else {
+    }
+    else {
         printf("Invalid choice.\n");
     }
 
