@@ -13,6 +13,7 @@ int main() {
     char choice;
     printf("Enter 'e' to encrypt or 'd' to decrypt: ");
     scanf("%c", &choice);
+    getchar();
 
     if (choice == 'e') {
         char plaintext[1000];
