@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-void xorEncryptDecrypt(char* data, const char* key) {
-    int keyLen = strlen(key);
-    for (int i = 0; data[i] != '\0'; ++i) {
+void xorEncryptDecrypt(char* data, size_t dataLen, const char* key) {
+    size_t keyLen = strlen(key);
+
+    for (size_t i = 0; i < dataLen; ++i) {
         data[i] ^= key[i % keyLen];
     }
 }
@@ -12,7 +13,7 @@ void xorEncryptDecrypt(char* data, const char* key) {
 int main() {
     char choice;
     printf("Enter 'e' to encrypt or 'd' to decrypt: ");
-    scanf("%c", &choice);
+    scanf(" %c", &choice);
     getchar();
 
     if (choice == 'e') {
@@ -22,13 +23,25 @@ int main() {
 
         printf("Enter the plaintext: ");
         fgets(plaintext, sizeof(plaintext), stdin);
-        plaintext[strcspn(plaintext, "\n")] = '\0'; // Remove newline
+
+        /*
+         * If the plaintext is longer than 999 characters,
+         * fgets() leaves the remainder in stdin. This removes it.
+         */
+        if (strchr(plaintext, '\n') == NULL) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+
+        plaintext[strcspn(plaintext, "\n")] = '\0';
 
         printf("Enter the filename to save encrypted data: ");
-        scanf("%s", filename);
+        scanf("%49s", filename);
 
         printf("Enter the key: ");
-        scanf("%s", key);
+        scanf("%19s", key);
+
+        size_t plaintextLen = strlen(plaintext);
 
         FILE* file = fopen(filename, "wb");
         if (file == NULL) {
@@ -36,8 +49,14 @@ int main() {
             return 1;
         }
 
-        xorEncryptDecrypt(plaintext, key);
-        fwrite(plaintext, sizeof(char), strlen(plaintext), file);
+        xorEncryptDecrypt(plaintext, plaintextLen, key);
+
+        /*
+         * Use plaintextLen, not strlen(plaintext), because the
+         * encrypted data may contain '\0' bytes.
+         */
+        fwrite(plaintext, sizeof(char), plaintextLen, file);
+
         fclose(file);
     }
     else if (choice == 'd') {
@@ -45,10 +64,10 @@ int main() {
         char key[20];
 
         printf("Enter the filename to read encrypted data: ");
-        scanf("%s", filename);
+        scanf("%49s", filename);
 
         printf("Enter the key: ");
-        scanf("%s", key);
+        scanf("%19s", key);
 
         FILE* file = fopen(filename, "rb");
         if (file == NULL) {
@@ -68,10 +87,19 @@ int main() {
         }
 
         fread(encryptedData, sizeof(char), fileSize, file);
-        encryptedData[fileSize] = '\0';
         fclose(file);
 
-        xorEncryptDecrypt(encryptedData, key);
+        /*
+         * Decrypt exactly fileSize bytes, including any '\0'
+         * bytes that occur in the encrypted data.
+         */
+        xorEncryptDecrypt(encryptedData, fileSize, key);
+
+        /*
+         * Add the string terminator AFTER decryption.
+         */
+        encryptedData[fileSize] = '\0';
+
         printf("Decrypted data: %s\n", encryptedData);
 
         free(encryptedData);
