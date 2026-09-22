@@ -38,6 +38,12 @@ int main() {
         printf("Enter the filename to save encrypted data: ");
         scanf("%49s", filename);
 
+        if (strlen(filename) == 49) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+
+
         printf("Enter the key: ");
         scanf("%19s", key);
 
@@ -65,6 +71,12 @@ int main() {
 
         printf("Enter the filename to read encrypted data: ");
         scanf("%49s", filename);
+
+        if (strlen(filename) == 49) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+
 
         printf("Enter the key: ");
         scanf("%19s", key);
